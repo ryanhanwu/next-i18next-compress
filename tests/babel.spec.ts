@@ -5,7 +5,11 @@ import jsxSyntaxPlugin from '@babel/plugin-syntax-jsx'
 import babelPlugin from '../src/babel'
 import { Options } from '../src/options'
 
-function transform(input: string, options?: Partial<Options>, babelOptions?: TransformOptions) {
+function transform(
+  input: string,
+  options?: Partial<Options>,
+  babelOptions?: TransformOptions
+): string | null | undefined {
   const output = transformSync(input, {
     plugins: [jsxSyntaxPlugin, options ? [babelPlugin, options] : [babelPlugin]],
     filename: 'client/src/test.jsx',

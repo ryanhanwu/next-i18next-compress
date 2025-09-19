@@ -27,7 +27,7 @@ export default function nextI18nextCompressBabelPlugin(babel: Babel): {
     name: 'next-i18next-compress',
 
     visitor: {
-      CallExpression(path, _state) {
+      CallExpression(path, _state): void {
         const state = _state as State
 
         // Do not process any files in development
@@ -54,19 +54,12 @@ export default function nextI18nextCompressBabelPlugin(babel: Babel): {
           code: state.file.code,
         })
 
-        // Generate the new argument with the compressed key
-        const keyArgument = {
-          type: 'StringLiteral',
-          value: compressKey(key, options.hashLength),
-        }
-
-        // Overwrite the existing argument with the new one
-        path.node.arguments[0] = keyArgument as any // eslint-disable-line @typescript-eslint/no-explicit-any
+        path.node.arguments[0] = t.stringLiteral(compressKey(key, options.hashLength))
 
         processedNodes.add(path.node)
       },
 
-      JSXElement(path, _state) {
+      JSXElement(path, _state): void {
         const state = _state as State
 
         // Do not process any files in development
@@ -112,20 +105,14 @@ export default function nextI18nextCompressBabelPlugin(babel: Babel): {
         })
 
         // The key is either the `i18nKey` attribute or the child text node
-        const key = (i18nKeyAttributeValue || childrenKey) as string
+        const key = (i18nKeyAttributeValue || childrenKey)
 
-        // Generate the new `i18nKey` attribute with the compressed key
-        const keyAttribute = {
-          type: 'JSXAttribute',
-          name: { type: 'JSXIdentifier', name: 'i18nKey' },
-          value: { type: 'StringLiteral', value: compressKey(key, options.hashLength) },
-        }
-
-        // Strip the element of any existing `i18nKey` attribute and insert the new one
-        path.node.openingElement.attributes = path.node.openingElement.attributes.filter(
-          (x) => x.type === 'JSXAttribute' && x.name.name !== 'i18nKey'
+        path.node.openingElement.attributes.push(
+          t.jsxAttribute(
+            t.jsxIdentifier('i18nKey'),
+            t.stringLiteral(compressKey(key, options.hashLength))
+          )
         )
-        path.node.openingElement.attributes.push(keyAttribute as any) // eslint-disable-line @typescript-eslint/no-explicit-any
 
         // We can turn any components into self-closing that have either no or only text children
         const canTurnIntoSelfClosing = path.node.children.every(
@@ -141,7 +128,7 @@ export default function nextI18nextCompressBabelPlugin(babel: Babel): {
         } else {
           // Compress the text nodes to single characters since they will be replaced by the translated text.
           // `<Trans>Foo <Link>Bar</Link></Trans>` -> `<Trans i18nKey={...}>~<Link>~</Link></Trans>`
-          compressChildTextNodes(path.node.children as BabelTypes.JSXElement['children'])
+          compressChildTextNodes(path.node.children)
         }
 
         processedNodes.add(path.node)

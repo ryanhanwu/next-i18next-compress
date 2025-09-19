@@ -92,7 +92,7 @@ export function astToKey(ast: AbstractSyntaxTree, options: AstToKeyOptions): str
     if (options.jsx && astNode.type === 'ObjectExpression') {
       /* c8 ignore next 3 */
       if (!astNode.start || !astNode.end) {
-        throw new Error('Start or end of a AST node are missing, please file a bug report!')
+                throw new Error('Start or end of a AST node are missing, please file a bug report!')
       }
 
       // We slice the code out of the file instead of trying to recreate it from the AST
@@ -117,9 +117,9 @@ export function astToKey(ast: AbstractSyntaxTree, options: AstToKeyOptions): str
 }
 
 export class UnsupportedAstTypeError extends Error {
-  constructor(astNode: { type: string; start?: number | null; end?: number | null }, code: string) {
+    constructor(astNode: { type: string; start?: number | null; end?: number | null }, code: string) {
     let message =
-      `[next-i18next-compress] Unsupported AST type: ` +
+      '[next-i18next-compress] Unsupported AST type: ' +
       `We do not know how to handle "${astNode.type}"`
 
     if (code && astNode.start && astNode.end) {
@@ -133,13 +133,13 @@ export class UnsupportedAstTypeError extends Error {
   }
 }
 
-function printCodeRange(code: string, start: number, end: number, padding: number) {
+function printCodeRange(code: string, start: number, end: number, padding: number): string {
   const slicedStartPadding = code.slice(Math.max(0, start - padding), start)
   const slicedCode = code.slice(start, end)
   const slicedEndPadding = code.slice(end, Math.min(code.length, end + padding))
 
   /* c8 ignore next */
-  const format = process.env.NODE_ENV === 'test' ? (x: string) => x : colors.red
+  const format = process.env.NODE_ENV === 'test' ? (x: string): string => x : colors.red
 
   return slicedStartPadding + format(slicedCode) + slicedEndPadding
 }

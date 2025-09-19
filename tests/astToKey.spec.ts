@@ -6,20 +6,20 @@ import * as BabelTypes from '@babel/types'
 import { astToKey } from '../src/astToKey'
 import { Babel } from '../src/babel'
 
-function astToKeyFromCode(code: string) {
+function astToKeyFromCode(code: string): string | undefined {
   let key
 
-  function fakePlugin(babel: Babel) {
+  function fakePlugin(babel: Babel): { visitor: { CallExpression(path: NodePath<BabelTypes.CallExpression>): void; JSXElement(path: NodePath<BabelTypes.JSXElement>): void; } } {
     const t = babel.types
 
     return {
       visitor: {
-        CallExpression(path: NodePath<BabelTypes.CallExpression>) {
+        CallExpression(path: NodePath<BabelTypes.CallExpression>): void {
           if (!t.isIdentifier(path.node.callee, { name: 't' })) return
           key = astToKey([path.node.arguments[0]], { code })
         },
 
-        JSXElement(path: NodePath<BabelTypes.JSXElement>) {
+        JSXElement(path: NodePath<BabelTypes.JSXElement>): void {
           if (!t.isJSXIdentifier(path.node.openingElement.name, { name: 'Trans' })) return
           key = astToKey(path.node.children, { code, jsx: true })
         },
@@ -183,7 +183,7 @@ describe('astToKey (JSX)', () => {
     `)
 
     expect(key).toEqual(
-      `We did not recognize your email and/or password. Please try again or <2>recover your password</2>.`
+      'We did not recognize your email and/or password. Please try again or <2>recover your password</2>.'
     )
   })
 

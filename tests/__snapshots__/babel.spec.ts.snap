@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`babel \`<Trans>\` component can configure the length of the compressed key 1`] = `
 "export function ReactComponent() {
@@ -77,7 +77,7 @@ exports[`babel \`<Trans>\` component correctly compresses the string literal i18
     t
   } = useTranslation('namespace');
   return <Headline as='h1' size='xl' textAlign='center'>
-              <Trans t={t} i18nKey="bb42f8" />
+              <Trans t={t} i18nKey='Forgot password' i18nKey="bb42f8" />
             </Headline>;
 }"
 `;
@@ -88,7 +88,7 @@ exports[`babel \`<Trans>\` component correctly compresses the string literal i18
     t
   } = useTranslation('namespace');
   return <Headline as='h1' size='xl' textAlign='center'>
-              <Trans t={t} i18nKey="bb42f8">~<Link>~</Link>
+              <Trans t={t} i18nKey='Forgot password' i18nKey="bb42f8">~<Link>~</Link>
               </Trans>
             </Headline>;
 }"
@@ -100,8 +100,8 @@ exports[`babel \`<Trans>\` component correctly compresses the string literal i18
     t
   } = useTranslation('namespace');
   return <Headline as='h1' size='xl' textAlign='center'>
-              <Trans t={t} i18nKey="bb42f8" />
-              <Trans t={t} i18nKey="bb42f8" />
+              <Trans t={t} i18nKey='Forgot password' i18nKey="bb42f8" />
+              <Trans t={t} i18nKey='Forgot password' i18nKey="bb42f8" />
             </Headline>;
 }"
 `;
@@ -112,7 +112,7 @@ exports[`babel \`<Trans>\` component correctly compresses the template string i1
     t
   } = useTranslation('namespace');
   return <Headline as='h1' size='xl' textAlign='center'>
-              <Trans t={t} i18nKey="bb42f8" />
+              <Trans t={t} i18nKey={\`Forgot password\`} i18nKey="bb42f8" />
             </Headline>;
 }"
 `;

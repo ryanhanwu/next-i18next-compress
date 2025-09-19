@@ -24,7 +24,7 @@ describe('parseLocaleFile', () => {
     expect(parseLocaleFile(localeFileString, { hashLength: 16 })).toMatchSnapshot()
   })
 
-  test('throws an error if there are any compression collisions', async () => {
+  test('throws an error if there are any compression collisions', () => {
     mockCompressKey.mockImplementation(() => 'foobar')
     expect(() => parseLocaleFile(localeFileString)).toThrowErrorMatchingSnapshot()
   })

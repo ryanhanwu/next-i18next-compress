@@ -1,9 +1,12 @@
 import { compressKey } from './compressKey'
 import { mergeDefaultOptions, Options } from './options'
 
-export function parseLocaleFile(string: string, pOptions?: Options) {
+export function parseLocaleFile(
+  string: string,
+  pOptions?: Options
+): Record<string, string> {
   const options = mergeDefaultOptions(pOptions)
-  const json = JSON.parse(string)
+  const json = JSON.parse(string) as Record<string, string>
 
   // Do not process any files in development
   if (process.env.NODE_ENV === 'development') {
@@ -19,9 +22,9 @@ export function parseLocaleFile(string: string, pOptions?: Options) {
     // The compressed key already exists, throw a collision error
     if (compressedKeys[compressedKey]) {
       const message =
-        `[next-i18next-compress] Compression collision: ` +
+        '[next-i18next-compress] Compression collision: ' +
         `"${compressedKeys[compressedKey]}" and "${key}" compress to the same hash "${compressedKey}".` +
-        `Try increasing the "hashLength" option or splitting your locale file into multiple namespaces.`
+        'Try increasing the "hashLength" option or splitting your locale file into multiple namespaces.'
 
       throw new Error(message)
     }

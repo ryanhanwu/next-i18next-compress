@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`astToKey (JSX) errors on fragment 1`] = `
 "/tests/client/src/test.jsx: [next-i18next-compress] Unsupported AST type: We do not know how to handle "JSXFragment" in this part of your code:
