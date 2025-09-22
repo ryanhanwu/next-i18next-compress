@@ -92,6 +92,30 @@ function transformAst(ast, sourceCode, options) {
     }
     return visitNode(ast);
 }
+function isSimpleTranslatablePattern(node) {
+    if (!node)
+        return false;
+    const supportedTypes = [
+        'StringLiteral',
+        'TemplateLiteral',
+        'JSXText',
+        'JSXElement',
+        'JSXExpressionContainer'
+    ];
+    const unsupportedTypes = [
+        'Identifier',
+        'MemberExpression',
+        'ConditionalExpression',
+        'CallExpression',
+        'BinaryExpression',
+        'ArrayExpression',
+        'ObjectExpression'
+    ];
+    if (unsupportedTypes.includes(node.type)) {
+        return false;
+    }
+    return supportedTypes.includes(node.type);
+}
 function visitCallExpression(node, sourceCode, options) {
     if (processedNodes.has(node)) {
         return node;
@@ -109,6 +133,12 @@ function visitCallExpression(node, sourceCode, options) {
             return node;
         }
         const babelAstNode = convertSwcToBabelAst(firstArg.expression);
+        if (!isSimpleTranslatablePattern(babelAstNode)) {
+            return node;
+        }
+        if (babelAstNode.type === 'Identifier') {
+            return node;
+        }
         const key = (0, astToKey_1.astToKey)([babelAstNode], {
             code: sourceCode,
         });
@@ -124,10 +154,10 @@ function visitCallExpression(node, sourceCode, options) {
         processedNodes.add(node);
     }
     catch (error) {
-        if (error instanceof astToKey_1.UnsupportedAstTypeError) {
+        if (error instanceof astToKey_1.UnsupportedAstTypeError && process.env.NODE_ENV === 'test') {
             throw error;
         }
-        console.warn('Failed to process call expression:', error);
+        return node;
     }
     return node;
 }
@@ -157,6 +187,10 @@ function visitJSXElement(node, sourceCode, options) {
         let childrenKey = '';
         if (node.children && node.children.length > 0) {
             const babelAstNodes = node.children.map((child) => convertSwcToBabelAst(child));
+            const hasComplexChildren = babelAstNodes.some((child) => child && !isSimpleTranslatablePattern(child) && child.type !== 'JSXText');
+            if (hasComplexChildren) {
+                return node;
+            }
             childrenKey = (0, astToKey_1.astToKey)(babelAstNodes, {
                 code: sourceCode,
                 jsx: true,
@@ -198,10 +232,10 @@ function visitJSXElement(node, sourceCode, options) {
         processedNodes.add(node);
     }
     catch (error) {
-        if (error instanceof astToKey_1.UnsupportedAstTypeError) {
+        if (error instanceof astToKey_1.UnsupportedAstTypeError && process.env.NODE_ENV === 'test') {
             throw error;
         }
-        console.warn('Failed to process JSX element:', error);
+        return node;
     }
     return node;
 }
@@ -333,8 +367,67 @@ function convertSwcToBabelAst(node) {
                 computed: node.computed,
                 shorthand: node.shorthand,
             };
+        case 'ConditionalExpression':
+            return {
+                type: 'ConditionalExpression',
+                test: convertSwcToBabelAst(node.test),
+                consequent: convertSwcToBabelAst(node.consequent),
+                alternate: convertSwcToBabelAst(node.alternate),
+                start: node.span?.start,
+                end: node.span?.end,
+            };
+        case 'ArrayExpression':
+            return {
+                type: 'ArrayExpression',
+                elements: node.elements?.map((elem) => elem ? convertSwcToBabelAst(elem) : null),
+                start: node.span?.start,
+                end: node.span?.end,
+            };
+        case 'ThisExpression':
+            return {
+                type: 'ThisExpression',
+                start: node.span?.start,
+                end: node.span?.end,
+            };
+        case 'UpdateExpression':
+            return {
+                type: 'UpdateExpression',
+                operator: node.op,
+                argument: convertSwcToBabelAst(node.arg),
+                prefix: node.prefix,
+                start: node.span?.start,
+                end: node.span?.end,
+            };
+        case 'UnaryExpression':
+            return {
+                type: 'UnaryExpression',
+                operator: node.op,
+                argument: convertSwcToBabelAst(node.arg),
+                prefix: true,
+                start: node.span?.start,
+                end: node.span?.end,
+            };
         default:
-            console.warn(`Unhandled SWC AST node type: ${node.type}`);
+            const commonUnsupportedTypes = [
+                'ArrowFunctionExpression',
+                'FunctionExpression',
+                'AssignmentExpression',
+                'ConditionalExpression',
+                'LogicalExpression',
+                'SequenceExpression',
+                'NewExpression',
+                'AwaitExpression',
+                'YieldExpression',
+                'SpreadElement',
+                'RestElement',
+                'AssignmentPattern',
+                'VariableDeclarator',
+                'ImportDeclaration',
+                'ExportDeclaration'
+            ];
+            if (!commonUnsupportedTypes.includes(node.type)) {
+                console.warn(`Unhandled SWC AST node type: ${node.type}`);
+            }
             return {
                 type: node.type,
                 start: node.span?.start,
