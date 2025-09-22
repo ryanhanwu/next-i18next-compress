@@ -88,45 +88,74 @@ module.exports = {
 
 3. Choose your transformation method:
 
-### Option A: Using SWC (Recommended - Faster)
+### Option A: Using Babel (Recommended - Simple Setup)
 
-If you're using SWC for compilation (Next.js 12+ default), add the SWC transform to your `next.config.js`:
-
-```js
-// next.config.js
-const { transformCode } = require('@devoxa/next-i18next-compress/dist/src/swc')
-
-module.exports = {
-  // Your existing Next.js config
-  experimental: {
-    swcPlugins: [
-      // Add SWC transform for next-i18next-compress
-      ['@devoxa/next-i18next-compress/swc', {}]
-    ]
-  }
-}
-```
-
-Or use it programmatically in your build process:
-
-```js
-import { transformCode } from '@devoxa/next-i18next-compress/dist/src/swc'
-
-// Transform your code
-const transformedCode = await transformCode(sourceCode, {
-  hashLength: 6, // optional
-  filename: 'path/to/file.tsx' // optional
-})
-```
-
-### Option B: Using Babel
-
-Create or update your `.babelrc`:
+The easiest way to get started is with Babel. Create or update your `.babelrc`:
 
 ```json
 {
   "presets": ["next/babel"],
   "plugins": ["@devoxa/next-i18next-compress/babel"]
+}
+```
+
+### Option B: Using SWC (Advanced - Faster Performance)
+
+**Note**: SWC integration requires custom webpack setup. Use this if you need maximum performance.
+
+To integrate SWC transformation into your Next.js project, add this to your existing `webpack` function in `next.config.js`:
+
+```js
+// next.config.js
+const { transformCode } = require('@devoxa/next-i18next-compress/swc')
+
+const nextConfig = {
+  // ... your existing config
+  webpack: (config, { isServer, webpack }) => {
+    // ... your existing webpack config
+
+    // Add SWC transformation for i18next compression
+    if (!isServer) { // Only transform client-side code
+      config.module.rules.push({
+        test: /\.(js|jsx|ts|tsx)$/,
+        exclude: /node_modules/,
+        enforce: 'pre', // Run before other loaders
+        use: {
+          loader: require.resolve('./swc-i18next-loader.js')
+        }
+      })
+    }
+
+    // ... rest of your webpack config
+    return config
+  }
+}
+```
+
+Then create `swc-i18next-loader.js` in your project root:
+
+```js
+// swc-i18next-loader.js
+const { transformCode } = require('@devoxa/next-i18next-compress/swc')
+
+module.exports = async function(source) {
+  const callback = this.async()
+
+  try {
+    // Skip transformation in development
+    if (process.env.NODE_ENV === 'development') {
+      return callback(null, source)
+    }
+
+    const result = await transformCode(source, {
+      filename: this.resourcePath,
+      hashLength: 6 // Configure as needed
+    })
+
+    callback(null, result)
+  } catch (error) {
+    callback(error)
+  }
 }
 ```
 

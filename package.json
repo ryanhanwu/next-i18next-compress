@@ -15,7 +15,21 @@
     "preversion": "yarn build"
   },
   "prettier": "@devoxa/prettier-config",
+  "main": "dist/src/babel.js",
+  "exports": {
+    ".": "./dist/src/babel.js",
+    "./babel": "./dist/src/babel.js",
+    "./swc": "./dist/src/swc.js",
+    "./config": "./config/node.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist/",
+    "config/",
+    "babel.js"
+  ],
   "dependencies": {
+    "@swc/core": "^1.13.5",
     "colors": "1.4.0"
   },
   "devDependencies": {
@@ -25,7 +39,6 @@
     "@babel/types": "^7.28.4",
     "@devoxa/eslint-config": "4.0.2",
     "@devoxa/prettier-config": "2.0.3",
-    "@swc/core": "^1.13.5",
     "@swc/jest": "^0.2.39",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.5.2",
