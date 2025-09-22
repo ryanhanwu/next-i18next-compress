@@ -14,26 +14,25 @@
     "build": "rm -rf dist/ && tsc",
     "preversion": "yarn build"
   },
-  
   "prettier": "@devoxa/prettier-config",
   "dependencies": {
     "colors": "1.4.0"
   },
   "devDependencies": {
-    "@babel/core": "7.28.4",
-    "@babel/plugin-syntax-jsx": "7.27.1",
-    "@babel/traverse": "7.28.4",
-    "@babel/types": "7.28.4",
+    "@babel/core": "^7.28.4",
+    "@babel/plugin-syntax-jsx": "^7.27.1",
+    "@babel/traverse": "^7.28.4",
+    "@babel/types": "^7.28.4",
     "@devoxa/eslint-config": "4.0.2",
     "@devoxa/prettier-config": "2.0.3",
-    "@swc/core": "1.13.5",
-    "@swc/jest": "0.2.39",
-    "@types/jest": "30.0.0",
-    "@types/node": "24.5.2",
-    "eslint": "9.36.0",
-    "jest": "30.1.3",
-    "prettier": "3.6.2",
-    "typescript": "5.9.2"
+    "@swc/core": "^1.13.5",
+    "@swc/jest": "^0.2.39",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.5.2",
+    "eslint": "^9.36.0",
+    "jest": "^30.1.3",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.2"
   },
   "publishConfig": {
     "access": "public"

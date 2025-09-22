@@ -86,7 +86,42 @@ module.exports = {
 }
 ```
 
-3. Create or update your `.babelrc`:
+3. Choose your transformation method:
+
+### Option A: Using SWC (Recommended - Faster)
+
+If you're using SWC for compilation (Next.js 12+ default), add the SWC transform to your `next.config.js`:
+
+```js
+// next.config.js
+const { transformCode } = require('@devoxa/next-i18next-compress/dist/src/swc')
+
+module.exports = {
+  // Your existing Next.js config
+  experimental: {
+    swcPlugins: [
+      // Add SWC transform for next-i18next-compress
+      ['@devoxa/next-i18next-compress/swc', {}]
+    ]
+  }
+}
+```
+
+Or use it programmatically in your build process:
+
+```js
+import { transformCode } from '@devoxa/next-i18next-compress/dist/src/swc'
+
+// Transform your code
+const transformedCode = await transformCode(sourceCode, {
+  hashLength: 6, // optional
+  filename: 'path/to/file.tsx' // optional
+})
+```
+
+### Option B: Using Babel
+
+Create or update your `.babelrc`:
 
 ```json
 {
@@ -101,7 +136,20 @@ module.exports = {
 ## Configuration
 
 When configuring this package, make sure to pass the options to both the configuration in
-`next-i18next.config.js` as well as the babel plugin in `.babelrc`:
+`next-i18next.config.js` as well as your chosen transformation method:
+
+### SWC Configuration
+
+```js
+// next-i18next.config.js
+...nextI18nextCompressConfig({ hashLength: 8 }),
+
+// Programmatic usage
+import { transformCode } from '@devoxa/next-i18next-compress/dist/src/swc'
+const result = await transformCode(code, { hashLength: 8 })
+```
+
+### Babel Configuration
 
 ```js
 // next-i18next.config.js
@@ -116,6 +164,32 @@ Available configuration options:
 - `hashLength` (optional, defaults to `6`): The length of the resulting compressed key. Low values
   in combination with large locale files may cause collisions where two keys compress to the same
   hash, which will throw an error during build.
+- `filename` (optional, SWC only): The filename being processed, used for debugging and node_modules exclusion.
+
+## SWC vs Babel
+
+### Performance
+
+**SWC** (Recommended):
+- ⚡ **Significantly faster** - Built in Rust, up to 20x faster than Babel
+- 🚀 **Better for large codebases** - Scales better with project size
+- 🔧 **Native Next.js integration** - Default compiler in Next.js 12+
+- 📦 **Smaller bundle overhead** - More efficient transformation
+
+**Babel**:
+- 🔄 **Wider ecosystem support** - More plugins and transformations available
+- 🛠️ **Mature tooling** - Extensive debugging and development tools
+- 📚 **Better documentation** - More resources and community support
+
+### Functionality
+
+Both implementations provide identical functionality:
+- ✅ Compress `t('key')` function calls
+- ✅ Compress `<Trans>content</Trans>` JSX components
+- ✅ Support for template literals with `{{interpolation}}`
+- ✅ Development mode detection (no compression in dev)
+- ✅ node_modules exclusion
+- ✅ Error handling for unsupported patterns
 
 ## Limitations
 
